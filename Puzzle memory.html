@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Memory Puzzle Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f1f1f1;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #3498db;
+      color: white;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 10px;
+      user-select: none;
+    }
+
+    .card.flipped {
+      background-color: #2ecc71;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Puzzle Game</h1>
+  <div class="game-board" id="gameBoard"></div>
+  <p id="message"></p>
+
+  <script>
+    const cardsArray = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    let gameGrid = [...cardsArray, ...cardsArray]; // Pasangan
+    gameGrid.sort(() => 0.5 - Math.random()); // Acak
+
+    const board = document.getElementById('gameBoard');
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+    let matchedPairs = 0;
+
+    function createCard(value) {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.dataset.value = value;
+      card.textContent = '';
+      card.addEventListener('click', handleCardClick);
+      board.appendChild(card);
+    }
+
+    function handleCardClick() {
+      if (lockBoard || this.classList.contains('flipped')) return;
+
+      this.classList.add('flipped');
+      this.textContent = this.dataset.value;
+
+      if (!firstCard) {
+        firstCard = this;
+      } else {
+        secondCard = this;
+        lockBoard = true;
+
+        if (firstCard.dataset.value === secondCard.dataset.value) {
+          matchedPairs++;
+          resetTurn();
+
+          if (matchedPairs === cardsArray.length) {
+            document.getElementById('message').textContent = '🎉 Kamu Menang!';
+          }
+        } else {
+          setTimeout(() => {
+            firstCard.classList.remove('flipped');
+            secondCard.classList.remove('flipped');
+            firstCard.textContent = '';
+            secondCard.textContent = '';
+            resetTurn();
+          }, 1000);
+        }
+      }
+    }
+
+    function resetTurn() {
+      [firstCard, secondCard] = [null, null];
+      lockBoard = false;
+    }
+
+    // Buat kartu
+    gameGrid.forEach(value => createCard(value));
+  </script>
+</body>
+</html>
